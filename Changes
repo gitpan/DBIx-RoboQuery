@@ -1,0 +1,338 @@
+Revision History for DBIx-RoboQuery
+===================================
+
+0.012025
+--------
+
+ec49092 Add hashrefs as a stopword
+
+2dd0f31 Wrap SQL words in C<> formatting codes
+
+931cc8a Fix typos in order_from_sql example
+
+3a0484c Link to query/prefer from resultset/preference
+
+c445a42 Make minor formatting adjustments
+
+a51bfca Just call it 'the query object' instead of using the full name again
+
+94a74b8 Wrap unadorned attribute name in C<> codes
+
+e2937bc Simplify Pod link for local method
+
+88f6c3b Stop referring to it as "Query"
+
+4ef56bd Specify required version of Test::MockObject (1.09)
+
+94f6144 Use "C<>" formatting codes when talking about attributes/options
+
+f5b7cc3 Prepend a code example to each method documentation
+
+8951946 Wrap "Obviously" in the Security section in bold
+
+91f82e4 Update code example in transform documentation to match latest Sub::Chain API
+
+2fcdd2c Reword the drop_columns documentation for clarity
+
+af7d118 Reword how default_slice is used by the query
+
+cd76204 Mention when prepare_transformations is called
+
+9ad8f98 Add code examples to methods missing them
+
+3154684 Recognize that Synopsis should end on any =command
+
+218ac21 Add stopwords
+
+ac3d433 Ignore ASC/DESC when returning column order
+
+da0c879 Test resultset_class (automatic and explicit)
+
+83bf177 Load resultset_class before trying to instantiate it
+
+7fa448e Test the actual Synopsis from the main module Pod
+
+7d98860 Fix discrepancies in Synopsis code so that it works
+
+v0.12 2011-01-06
+----------------
+
+8c65e2b Cache $query->resultset and move the caching of sql to ResultSet->new
+
+48688b7 Reword some of the documentation for key_columns
+
+08b04e7 Add a query() ro accessor to ResultSet
+
+55d9aa3 Remove resultset aliases to avoid confusion
+
+41eb892 Document the drop_columns attribute (and link to its method) in the constructor
+
+27d7d69 Remove the documentation for the options to ResultSet/new and link to Query/new
+
+82c54f3 Add more examples to the Query Synopsis and link to it from ResultSet
+
+e8b6e4a Undocument internal methods _pass_through_args
+
+045364a Define _arrayref_args methods to simplify common columns
+
+522ef66 Add 'drop_columns' rw accessor similar to key_columns
+
+ee2c1b3 Document the purpose of the ro accessor for key_columns on the resultset
+
+923c87e Only ensure arrayrefs for items that already exist in the hash
+
+608fcc7 Test the new getter/setters for key_columns and order
+
+v0.11 2011-01-06
+----------------
+
+e2f7444 Define rw accessors for key_columns and order
+
+683316e Clarify and improve grammar in constructor options documentation
+
+9459e70 Update construtor documentation to reflect change in API
+
+9d98f1b Add _flatten function to Util module
+
+86261ef Change export to import when referring to user's intentions
+
+f28a5e5 Add TODO items to Pod
+
+1e20976 Add the word 'obviously' to the Security section
+
+5779d2f Add ToDo item for writing more tests
+
+44b41c3 List configurable enhancements in Description
+
+cb60f6e Add TODO comment for order-by test
+
+a447f37 Add See Also and ToDo sections
+
+f98dc1d Link to other modules that parse a SQL Order By clause
+
+e93b0da Make Security a head1 and link to it from Description
+
+b30dd32 Reformat and clarify documentation for constructor options
+
+d56d395 Beef up the Synopsis Pod with a start-to-finish example
+
+f113e59 Remove suggestion for File::Slurp
+
+b3a1ee8 Update module name in dist.ini and .gitignore
+
+889ad3e Move 'ensure attributes are arrayrefs' logic to Util for use from both modules
+
+9b644ab Break POD line into multiple lines
+
+f05084e Remove Exporter from Util module
+
+fed7952 Move order() from ResultSet to Query
+
+6a394b0 Move Util module to new namespace
+
+v0.10 2011-01-05
+----------------
+
+093fc27 Rename the module to DBIx::RoboQuery and limit its focus to that
+
+a2f864f Add resultset_class attribute
+
+9c48b9f Add transformations to constructor calls to make the tests pass again
+
+a7af09f Define prepare_transformations() as a convenience shortcut
+
+v0.9 2011-01-04
+---------------
+
+e8e412a Use Sub::Chain::Group instead of Data::Transform::Named::Stackable
+
+480efb8 Process the sql template before creating a ResultSet so that any changes in the template get passed
+
+2f9e131 Explicitly test that key_columns transfers from Query to ResultSet
+
+v0.8 2010-12-23
+---------------
+
+476a86f Cache the sql() so that the template only gets processed once
+
+a4c53af Tell the transformations all the possible fields
+
+01b97ab Specifically test setting the key_columns attribute from the template
+
+5304d71 Use the $query variable that we already have instead of dereferencing $self->{query}
+
+03fb36d Alias 'key' and 'non_key' groups to their full names
+
+3e397c2 Test that ResultSet's array() and hash() methods return transformed data
+
+dff564c Test calling the query.transform function inside the query template
+
+4f7b660 Define 'key' and 'non_key' groups (for transformation) after executing the statements
+
+e6c2bf5 Transform the rows or hashes returned by ResultSet->array()
+
+ef5dc2c Insert a simple coderef to transform() the rows returned by hash()
+
+v0.7 2010-12-17
+---------------
+
+1958611 Define Query->transform for loading transformation specifications for given query fields
+
+ec74565 Test calling query.prefer() from inside a query template
+
+1917618 Document the expectation for DBI/RaiseError in a Caveats POD section
+
+bfd05ed Just "use lib 't/lib'" instead of using FindBin
+
+f78efda Test the new slicing operations of array() and hash()
+
+v0.6 2010-12-09
+---------------
+
+4f8d1e3 Make hash() and array() methods slice out the dropped columns
+
+81dd1f6 Save an arrayref of all_columns [in the original order] for later internal use
+
+426fa5c Handle drop_columns whether it's a string or arrayref
+
+a537645 Change heading from DESCRIPTION to module name
+
+5690168 Restore actual module name so tests stop skipping when the module is available
+
+bc97f6b Suggest Test::Exception (but don't require it)
+
+1862358 Simplify POD links
+
+3bac78e Improve symbols for THelper to avoid warnings
+
+7481805 Die if non_key_columns isn't defined (means non-select or DBI error)
+
+7b96c55 Make ResultSet->hash() die if there are no key_columns
+
+33d4662 Skip Test::Exception tests transparently it not available
+
+66f3603 Test columns, key_columns, and drop_columns on ResultSet after execute
+
+2df5121 Remove unused (and not useful) Test::MockDBI
+
+d20c1c7 Remove inappropriate croak message for missing key_columns
+
+4c359e6 Test ResultSet->preference() through Query->prefer() API in addition to forced white-box hack
+
+3f00346 Test that the preferences set with Query->prefer pass to Resultset intact
+
+2de93e3 Test Query->prefer()
+
+c3dd59a Allow 'default_slice' option to set the default for the array() method
+
+v0.5 2010-11-29
+---------------
+
+1b3fb22 Default ResultSet->array() to return an array of hash refs if no arguments
+
+fc30c30 Test ResultSet->hash() (fetchall_hashref w/ and w/o preference)
+
+v0.4 2010-11-29
+---------------
+
+ca38edb Reimplement fetchall_hashref using preference()
+
+7847031 Pluralize 'preference' attribute (to 'preferences') to make it sound like it's an array
+
+ae43ec5 Short-circuit preference() if there are no preferences defined
+
+4d16536 Add "DBI's" as a stopword
+
+30583c1 Add dbh, sql, and resultset to the global stopwords list
+
+f55ffe0 Update Pod::Coverage hints for aliases and removed methods
+
+864fec1 Change 'recordset' to 'result set' for consistency with module name
+
+5b805eb Use POD I<> formatting code instead of single quotes
+
+e4bb707 Fix module links in POD
+
+eaa6511 Don't send the preference rules to ResultSet->preference() since it's already on the object
+
+004a710 Test ResultSet->preference()
+
+9eb9f73 Define and document Query->prefer() and ResultSet->preference()
+
+c0ecf35 Test various aspects of the ResultSet
+
+1ca067e Only guess 'order' from sql when the method is called (lazy)
+
+c4bf487 Separate the methods that expand the 'column' attributes for organization, exceptions, and clarity
+
+7c04a6c Dereference array ref attributes when returning lists or referencing attributes
+
+ea4d8a8 Simplify the non_key_columns logic
+
+4f08278 Document ResultSet->new() and its options
+
+886f615 Add 'dbh' to the _pass_through_args() list
+
+0690451 Fix order_from_sql re to match more strings and test to be sure
+
+ee108bd Define various column-related attributes in the constructor
+
+81ea29b Make constructor argument logic more consistent between Query and ResultSet
+
+56124e0 Create query->resultset() method for convenience
+
+00f2727 Make variable usage and croak logic more consistent in execute()
+
+68e844b Make pass_through_args a "private" sub instead of a lexical array
+
+8bb8f85 Use strict and warnings in test case
+
+ca09fba Fix variable typo in untested constructor
+
+719cf1b Recommend File::Slurp but don't require it
+
+8677e72 Rename fetch subs by dropping 'refs' (&arrayrefs => &array, &hashrefs => &hash)
+
+eb4abc0 Make ResultSet constructor logic consistent with Query
+
+b2c0672 Test that Query constructor returns blessed reference and dies expectedly
+
+b0887af Allow prefix and suffix options and concatenate them to SQL before template processing
+
+334b380 Update the tests to match the new hash[ref] interface
+
+v0.3 2010-11-22
+---------------
+
+86ac9e6 Change constructor to accept solely a hash or hashref
+
+967bf5d Create a slurp_file function that defers to File::Slurp if available
+
+f0de6c0 Add Util module to the main_module's SEE ALSO list
+
+515971f Space test lines consistently
+
+v0.2 2010-11-22
+---------------
+
+64d768b Change attributes in Query->new() to hashref only
+
+40be508 Use strict and warnings to raise kwalitee
+
+53399c9 Create (empty) main module for documentation
+
+27a81da Commit initial ResultSet class to return configurable results from Query
+
+8631d6e Begin module of utility functions for working with SQL/DBI
+
+1ef8bf2 Add Basic README to make github happy
+
+dce4609 Specify Abstract, document constructor, and improve syntax in SYNOPSIS
+
+e8fe2d8 Enable absolute paths and strict variables in Template::Toolkite
+
+27f7ab3 Test new Query class (mostly test pre-processing the sql with Template::Toolkit)
+
+===================================
+End of changes in the last 365 days
+===================================

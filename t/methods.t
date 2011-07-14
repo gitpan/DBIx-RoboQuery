@@ -1,9 +1,10 @@
+# vim: set ts=2 sts=2 sw=2 expandtab smarttab:
 use strict;
 use warnings;
-use Test::More;
+use Test::More 0.96;
 
 my $qmod = 'DBIx::RoboQuery';
-require_ok($qmod);
+eval "require $qmod" or die $@;
 
 my $sql = 'SELECT * FROM table';
 my $order = 'ORDER BY field';

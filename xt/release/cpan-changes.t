@@ -1,4 +1,4 @@
-# vim: set ts=2 sts=2 sw=2 expandtab smarttab:
+#!perl
 #
 # This file is part of DBIx-RoboQuery
 #
@@ -7,11 +7,9 @@
 # This is free software; you can redistribute it and/or modify it under
 # the same terms as the Perl 5 programming language system itself.
 #
-package TRoboQuery::ResultSet;
-use strict;
-use warnings;
 
-use DBIx::RoboQuery::ResultSet;
-our @ISA = 'DBIx::RoboQuery::ResultSet';
-
-1;
+use Test::More;
+eval 'use Test::CPAN::Changes';
+plan skip_all => 'Test::CPAN::Changes required for this test' if $@;
+changes_ok();
+done_testing();

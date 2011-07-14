@@ -1,4 +1,4 @@
-# vim: set ts=2 sts=2 sw=2 expandtab smarttab:
+#!perl
 #
 # This file is part of DBIx-RoboQuery
 #
@@ -7,11 +7,14 @@
 # This is free software; you can redistribute it and/or modify it under
 # the same terms as the Perl 5 programming language system itself.
 #
-package TRoboQuery::ResultSet;
+
 use strict;
 use warnings;
 
-use DBIx::RoboQuery::ResultSet;
-our @ISA = 'DBIx::RoboQuery::ResultSet';
+use Test::More;
+use English qw(-no_match_vars);
 
-1;
+eval "use Test::Perl::Critic";
+plan skip_all => 'Test::Perl::Critic required to criticise code' if $@;
+Test::Perl::Critic->import( -profile => "perlcritic.rc" ) if -e "perlcritic.rc";
+all_critic_ok();

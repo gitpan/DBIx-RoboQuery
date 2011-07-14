@@ -21,7 +21,7 @@ my %module_build_args = (
     'Randy Stauner <rwstauner@cpan.org>'
   ],
   'dist_name' => 'DBIx-RoboQuery',
-  'dist_version' => '0.012025',
+  'dist_version' => '0.013',
   'license' => 'perl',
   'module_name' => 'DBIx::RoboQuery',
   'recommends' => {},

@@ -1,3 +1,12 @@
+# vim: set ts=2 sts=2 sw=2 expandtab smarttab:
+#
+# This file is part of DBIx-RoboQuery
+#
+# This software is copyright (c) 2010 by Randy Stauner.
+#
+# This is free software; you can redistribute it and/or modify it under
+# the same terms as the Perl 5 programming language system itself.
+#
 use strict;
 use warnings;
 package THelper;
@@ -7,22 +16,22 @@ package THelper;
 our $ExModule = 'Test::Exception';
 
 sub no_ex_module (&@) {
-	SKIP: {
-		package main;
-		skip("$THelper::ExModule required to test exceptions", 1);
-	}
+  SKIP: {
+    package main;
+    skip("$THelper::ExModule required to test exceptions", 1);
+  }
 }
 
 {
-	my @subs = qw(
-		throws_ok
-	);
-	package main;
-	eval "require $THelper::ExModule; $THelper::ExModule->import(); 1";
-	if( $@ ){
-		no strict 'refs';
-		*$_ = *THelper::no_ex_module for @subs;
-	}
+  my @subs = qw(
+    throws_ok
+  );
+  package main;
+  eval "require $THelper::ExModule; $THelper::ExModule->import(); 1";
+  if( $@ ){
+    no strict 'refs';
+    *$_ = *THelper::no_ex_module for @subs;
+  }
 }
 
 1;

@@ -1,17 +1,23 @@
+# vim: set ts=2 sts=2 sw=2 expandtab smarttab:
+#
+# This file is part of DBIx-RoboQuery
+#
+# This software is copyright (c) 2010 by Randy Stauner.
+#
+# This is free software; you can redistribute it and/or modify it under
+# the same terms as the Perl 5 programming language system itself.
+#
+use strict;
+use warnings;
+
 package DBIx::RoboQuery;
 BEGIN {
-  $DBIx::RoboQuery::VERSION = '0.012025';
+  $DBIx::RoboQuery::VERSION = '0.013';
 }
 BEGIN {
   $DBIx::RoboQuery::AUTHORITY = 'cpan:RWSTAUNER';
 }
 # ABSTRACT: Very configurable/programmable query object
-
-# NOTE: This SYNOPSIS is read in and tested in xt/author/synopsis.t
-
-
-use strict;
-use warnings;
 
 use Carp qw(carp croak);
 use DBIx::RoboQuery::ResultSet ();
@@ -20,206 +26,208 @@ use Template 2.22; # Template Toolkit
 
 
 sub new {
-	my $class = shift;
-	my %opts = ref($_[0]) eq 'HASH' ? %{$_[0]} : @_;
+  my $class = shift;
+  my %opts = ref($_[0]) eq 'HASH' ? %{$_[0]} : @_;
 
-	# Params::Validate not currently warranted
-	# (since it's still missing the "mutually exclusive" feature)
+  # Params::Validate not currently warranted
+  # (since it's still missing the "mutually exclusive" feature)
 
-	# defaults
-	my $self = {
-		drop_columns => [],
-		key_columns => [],
-		resultset_class => "${class}::ResultSet",
-		variables => {},
-	};
+  # defaults
+  my $self = {
+    drop_columns => [],
+    key_columns => [],
+    resultset_class => "${class}::ResultSet",
+    variables => {},
+  };
 
-	bless $self, $class;
+  bless $self, $class;
 
-	foreach my $var ( $self->_pass_through_args() ){
-		$self->{$var} = $opts{$var} if exists($opts{$var});
-	}
+  foreach my $var ( $self->_pass_through_args() ){
+    $self->{$var} = $opts{$var} if exists($opts{$var});
+  }
 
-	DBIx::RoboQuery::Util::_ensure_arrayrefs($self);
+  DBIx::RoboQuery::Util::_ensure_arrayrefs($self);
 
-	croak(q|Cannot include both 'sql' and 'file'|)
-		if exists($opts{sql}) && exists($opts{file});
+  croak(q|Cannot include both 'sql' and 'file'|)
+    if exists($opts{sql}) && exists($opts{file});
 
-	# if the string is defined that's good enough
-	if( defined($opts{sql}) ){
-		$self->{template} = ref($opts{sql}) ? ${$opts{sql}} : $opts{sql};
-	}
-	# the file path should at least be a true value
-	elsif( my $f = $opts{file} ){
-		open(my $fh, '<', $f)
-			or croak("Failed to open '$f': $!");
-		$self->{template} = do { local $/; <$fh>; };
-	}
-	else {
-		croak(q|Must specify one of 'sql' or 'file'|);
-	}
+  # if the string is defined that's good enough
+  if( defined($opts{sql}) ){
+    $self->{template} = ref($opts{sql}) ? ${$opts{sql}} : $opts{sql};
+  }
+  # the file path should at least be a true value
+  elsif( my $f = $opts{file} ){
+    open(my $fh, '<', $f)
+      or croak("Failed to open '$f': $!");
+    $self->{template} = do { local $/; <$fh>; };
+  }
+  else {
+    croak(q|Must specify one of 'sql' or 'file'|);
+  }
 
-	$self->prepare_transformations();
+  $self->prepare_transformations();
 
-	$self->{tt} = Template->new(
-		ABSOLUTE => 1,
-		STRICT => 1,
-		VARIABLES => {
-			query => $self,
-			%{$self->{variables}}
-		}
-	)
-		or die "$class error: Template::Toolkit failed: $Template::ERROR\n";
+  $self->{tt} = Template->new(
+    ABSOLUTE => 1,
+    STRICT => 1,
+    VARIABLES => {
+      query => $self,
+      %{$self->{variables}}
+    }
+  )
+    or die "$class error: Template::Toolkit failed: $Template::ERROR\n";
 
-	return $self;
+  return $self;
 }
 
 # convenience method for subclasses
 
 sub _arrayref_args {
-	qw(
-		drop_columns
-		key_columns
-		order
-	);
+  qw(
+    drop_columns
+    key_columns
+    order
+  );
 }
 
 
 sub drop_columns {
-	my ($self) = shift;
-	$self->{drop_columns} = [DBIx::RoboQuery::Util::_flatten(@_)]
-		if @_;
-	return @{$self->{drop_columns}};
+  my ($self) = shift;
+  $self->{drop_columns} = [DBIx::RoboQuery::Util::_flatten(@_)]
+    if @_;
+  return @{$self->{drop_columns}};
 }
 
 
 sub key_columns {
-	my ($self) = shift;
-	$self->{key_columns} = [DBIx::RoboQuery::Util::_flatten(@_)]
-		if @_;
-	return @{$self->{key_columns}};
+  my ($self) = shift;
+  $self->{key_columns} = [DBIx::RoboQuery::Util::_flatten(@_)]
+    if @_;
+  return @{$self->{key_columns}};
 }
 
 
 sub order {
-	my ($self) = shift;
-	if( @_ ){
-		$self->{order} = [DBIx::RoboQuery::Util::_flatten(@_)]
-	}
-	# only if not previously set (empty arrayref counts as being set)
-	elsif( !$self->{order} ){
-		$self->{order} = [
-			DBIx::RoboQuery::Util::order_from_sql(
-				$self->sql, $self)
-		]
-	}
-	return @{$self->{order}};
+  my ($self) = shift;
+  if( @_ ){
+    $self->{order} = [DBIx::RoboQuery::Util::_flatten(@_)]
+  }
+  # only if not previously set (empty arrayref counts as being set)
+  elsif( !$self->{order} ){
+    $self->{order} = [
+      DBIx::RoboQuery::Util::order_from_sql(
+        $self->sql, $self)
+    ]
+  }
+  return @{$self->{order}};
 }
 
 # convenience method: args allowed in the constructor
 
 sub _pass_through_args {
-	(
-		$_[0]->_arrayref_args,
-	qw(
-		dbh
-		default_slice
-		prefix
-		resultset_class
-		suffix
-		transformations
-		variables
-	));
+  (
+    $_[0]->_arrayref_args,
+  qw(
+    dbh
+    default_slice
+    prefix
+    resultset_class
+    suffix
+    transformations
+    variables
+  ));
 }
 
 
 sub prepare_transformations {
-	my ($self) = @_;
+  my ($self) = @_;
 
-	return
-		unless my $tr = $self->{transformations};
+  return
+    unless my $tr = $self->{transformations};
 
-	# assume a simple hash is a hash of named subs
-	if( ref $tr eq 'HASH' ){
-		require Sub::Chain::Group;
-		$self->{transformations} =
-			Sub::Chain::Group->new(
-				chain_class => 'Sub::Chain::Named',
-				chain_args  => {subs => $tr},
-			);
-	}
-	# return nothing
-	return;
+  # assume a simple hash is a hash of named subs
+  if( ref $tr eq 'HASH' ){
+    require Sub::Chain::Group;
+    $self->{transformations} =
+      Sub::Chain::Group->new(
+        chain_class => 'Sub::Chain::Named',
+        chain_args  => {subs => $tr},
+      );
+  }
+  # return nothing
+  return;
 }
 
 
 sub pre_process_sql {
-	my ($self, $sql) = @_;
-	$sql = $self->{prefix} . $sql if defined $self->{prefix};
-	$sql = $sql . $self->{suffix} if defined $self->{suffix};
-	return $sql;
+  my ($self, $sql) = @_;
+  $sql = $self->{prefix} . $sql if defined $self->{prefix};
+  $sql = $sql . $self->{suffix} if defined $self->{suffix};
+  return $sql;
 }
 
 
 sub prefer {
-	my ($self) = shift;
-	push(@{ $self->{preferences} ||= [] }, @_);
+  my ($self) = shift;
+  push(@{ $self->{preferences} ||= [] }, @_);
 }
 
 
 sub resultset {
-	my ($self) = shift;
-	# cache this object to avoid confusion
-	return $self->{resultset} ||= do {
-		# taint check
-		(my $class = $self->{resultset_class}) =~ s/[^a-zA-Z0-9_:']+//g;
-		# make sure it's loaded first
-		eval "require $class";
-		die $@ if $@;
+  my ($self) = shift;
+  # cache this object to avoid confusion
+  return $self->{resultset} ||= do {
+    # taint check
+    (my $class = $self->{resultset_class}) =~ s/[^a-zA-Z0-9_:']+//g;
+    # make sure it's loaded first
+    eval "require $class";
+    die $@ if $@;
 
-		$class->new($self);
-	}
+    $class->new($self);
+  }
 }
 
 
 sub sql {
-	my ($self, $vars) = @_;
-	$vars ||= {};
-	my $output;
+  my ($self, $vars) = @_;
+  $vars ||= {};
+  my $output;
 
-	# Cache the result to avoid duplicating function calls,
-	# directives, template logic, etc.
-	# Plus it shouldn't need to be run more than once.
-	if( exists $self->{processed_sql} ){
-		$output = $self->{processed_sql};
-	}
-	else {
-		my $sql = $self->pre_process_sql($self->{template});
-		$self->{tt}->process(\$sql, $vars, \$output)
-			or die($self->{tt}->error(), "\n");
-		$self->{processed_sql} = $output;
-	}
-	return $output;
+  # Cache the result to avoid duplicating function calls,
+  # directives, template logic, etc.
+  # Plus it shouldn't need to be run more than once.
+  if( exists $self->{processed_sql} ){
+    $output = $self->{processed_sql};
+  }
+  else {
+    my $sql = $self->pre_process_sql($self->{template});
+    $self->{tt}->process(\$sql, $vars, \$output)
+      or die($self->{tt}->error(), "\n");
+    $self->{processed_sql} = $output;
+  }
+  return $output;
 }
 
 
 sub transform {
-	my ($self, @tr) = @_;
+  my ($self, @tr) = @_;
 
-	croak("Cannot transform without 'transformations'")
-		unless my $tr = $self->{transformations};
+  croak("Cannot transform without 'transformations'")
+    unless my $tr = $self->{transformations};
 
-	$tr->append(@tr);
+  $tr->append(@tr);
 }
 
 1;
 
 
+
+
 __END__
 =pod
 
-=for :stopwords Randy Stauner dbh sql resultset TODO arrayrefs CPAN AnnoCPAN RT CPANTS
-Kwalitee diff IRC
+=for :stopwords Randy Stauner dbh sql resultset TODO arrayrefs cpan testmatrix url annocpan
+anno bugtracker rt cpants kwalitee diff irc mailto metadata placeholders
 
 =head1 NAME
 
@@ -227,51 +235,51 @@ DBIx::RoboQuery - Very configurable/programmable query object
 
 =head1 VERSION
 
-version 0.012025
+version 0.013
 
 =head1 SYNOPSIS
 
-	my $template_string = <<SQL;
-	[%
-		CALL query.key_columns('user_id');
-		CALL query.drop_columns('favorite_smell');
-		CALL query.prefer('favorite_smell != "wet dog"');
-		CALL query.transform('format_date', {fields => 'birthday'});
-	%]
-		SELECT user_id,
-			name,
-			dob as birthday,
-			favorite_smell
-		FROM users
-		WHERE dob < '[% minimum_birthdate() %]'
-	SQL
+  my $template_string = <<'  SQL';
+  [%
+    CALL query.key_columns('user_id');
+    CALL query.drop_columns('favorite_smell');
+    CALL query.prefer('favorite_smell != "wet dog"');
+    CALL query.transform('format_date', {fields => 'birthday'});
+  %]
+    SELECT user_id,
+      name,
+      dob as birthday,
+      favorite_smell
+    FROM users
+    WHERE dob < '[% minimum_birthdate() %]'
+  SQL
 
-	# create query object from template
-	my $query = DBIx::RoboQuery->new(
-		sql => $template_string,       # (or use file => $filepath)
-		dbh => $dbh,                   # handle returned from DBI->connect()
-		transformations => {           # functions available for transformation
-			format_date => \&arbitrary_date_format,
-			trim => sub { (my $s = $_[0]) =~ s/^\s+|\s+$//g; $s },
-		},
-		variables => {                 # variables for use in template
-			minimum_birthdate => \&arbitrary_date_function,
-		}
-	);
+  # create query object from template
+  my $query = DBIx::RoboQuery->new(
+    sql => $template_string,       # (or use file => $filepath)
+    dbh => $dbh,                   # handle returned from DBI->connect()
+    transformations => {           # functions available for transformation
+      format_date => \&arbitrary_date_format,
+      trim => sub { (my $s = $_[0]) =~ s/^\s+|\s+$//g; $s },
+    },
+    variables => {                 # variables for use in template
+      minimum_birthdate => \&arbitrary_date_function,
+    }
+  );
 
-	# transformations (and other configuration) can be specified in the sql
-	# template or in your code if you know you'll always want certain ones
-	$query->transform('trim', group => 'non_key_columns');
+  # transformations (and other configuration) can be specified in the sql
+  # template or in your code if you know you'll always want certain ones
+  $query->transform('trim', group => 'non_key_columns');
 
-	my $resultset = $query->resultset;
+  my $resultset = $query->resultset;
 
-	$resultset->execute;
-	my @non_key = $resultset->non_key_columns;
-	# do something where i want to know the difference key and non-key columns
+  $resultset->execute;
+  my @non_key = $resultset->non_key_columns;
+  # do something where i want to know the difference key and non-key columns
 
-	# get records (with transformations applied and specified columns dropped)
-	my $records = $resultset->hash;            # like DBI/fetchall_hashref
-	# OR: my $records = $resultset->array;     # like DBI/fetchall_arrayref
+  # get records (with transformations applied and specified columns dropped)
+  my $records = $resultset->hash;            # like DBI/fetchall_hashref
+  # OR: my $records = $resultset->array;     # like DBI/fetchall_arrayref
 
 =head1 DESCRIPTION
 
@@ -316,7 +324,7 @@ See note about L</SECURITY>.
 
 =head2 new
 
-	my $query = DBIx::RoboQuery->new(%opts); # or \%opts
+  my $query = DBIx::RoboQuery->new(%opts); # or \%opts
 
 Constructor;  Accepts a hash or hashref of options:
 
@@ -397,10 +405,10 @@ A hashref of variables made available to the template
 
 =head2 drop_columns
 
-	# get
-	my @drop_columns = $query->drop_columns;
-	# set
-	$query->drop_columns(@columns_to_ignore);
+  # get
+  my @drop_columns = $query->drop_columns;
+  # set
+  $query->drop_columns(@columns_to_ignore);
 
 Accessor for the list of columns to drop (remove) from the resultset;
 This works like the L</key_columns> method.
@@ -419,12 +427,12 @@ It may be most useful to set this value from within the template
 
 =head2 key_columns
 
-	# get
-	my @key_columns = $query->key_columns;
-	# set
-	$query->key_columns('id', 'fk_id');
-	# empty
-	$query->key_columns([]);
+  # get
+  my @key_columns = $query->key_columns;
+  # set
+  $query->key_columns('id', 'fk_id');
+  # empty
+  $query->key_columns([]);
 
 Accessor for the list of [primary] key columns for the query;
 
@@ -440,10 +448,10 @@ It may be most useful to set this value from within the template
 
 =head2 order
 
-	# get
-	my @order = $query->order;
-	# set
-	$query->order(@column_order);
+  # get
+  my @order = $query->order;
+  # set
+  $query->order(@column_order);
 
 Accessor for the list of the column names of the sort order of the query;
 
@@ -468,7 +476,7 @@ prepares the C<transformations> attribute
 This method provides a shortcut for convenience:
 If C<transformations> is a simple hash,
 it is assumed to be a hash of named subs and is passed to
-L<< Sub::Chain::Group->new() | Sub::Chain::Group/new >>
+L<Sub::Chain::Group/new>
 as the C<subs> key of the C<chain_args> hashref.
 See L<Sub::Chain::Group> and L<Sub::Chain::Named>
 for more information about these.
@@ -486,8 +494,8 @@ with the template engine.
 
 =head2 prefer
 
-	$query->prefer("color == 'red'", "color == 'green'");
-	$query->prefer("smell == 'good'");
+  $query->prefer("color == 'red'", "color == 'green'");
+  $query->prefer("smell == 'good'");
 
 Accepts one or more rules to determine which record to choose
 if you use C<< resultset->hash() >> and multiple records are found
@@ -504,10 +512,10 @@ So considering the above example,
 the following code will return the second record since it will match
 one of the rules first.
 
-	$resultset->preference(
-		{color => 'blue',  smell => 'good'},
-		{color => 'green', smell => 'bad'}
-	);
+  $resultset->preference(
+    {color => 'blue',  smell => 'good'},
+    {color => 'green', smell => 'bad'}
+  );
 
 The rules are tested in the order they are set,
 and the records are processed in reverse order
@@ -520,7 +528,7 @@ for more information.
 
 =head2 resultset
 
-	my $resultset = $query->resultset;
+  my $resultset = $query->resultset;
 
 This is a convenience method which returns a
 L<DBIx::RoboQuery::ResultSet> object based upon this query.
@@ -535,7 +543,7 @@ or you desire to pass options
 different than the attributes on the query,
 you can manually call L<DBIx::RoboQuery::ResultSet/new>:
 
-	my $resultset = DBIx::ResultSet->new($query, %other_options);
+  my $resultset = DBIx::ResultSet->new($query, %other_options);
 
 B<NOTE>: The ResultSet constructor calls L</sql>
 before initializing the object
@@ -544,8 +552,8 @@ will be passed to the object at initialization.
 
 =head2 sql
 
-	$query->sql;
-	$query->sql({extra => variable});
+  $query->sql;
+  $query->sql({extra => variable});
 
 Process the SQL template and return the result.
 
@@ -563,8 +571,8 @@ before instantiating any resultset objects.
 
 =head2 transform
 
-	$query->transform($sub, %opts);
-	$query->transform($sub, fields => [qw(fld1 fld2)], args => []);
+  $query->transform($sub, %opts);
+  $query->transform($sub, fields => [qw(fld1 fld2)], args => []);
 
 Add a transformation to be applied to the result data.
 
@@ -572,6 +580,8 @@ The default implementation simply passes the arguments
 to L<Sub::Chain::Group/append>.
 
 =for Pod::Coverage result results
+
+=for test_synopsis my $dbh; # NOTE: This SYNOPSIS is read in and tested in t/synopsis.t
 
 =head1 SECURITY
 
@@ -615,9 +625,19 @@ Consider an option for including direction (C<ASC>/C<DESC>) in L</order>
 
 Write a lot more tests
 
+=item *
+
+Add a method to pass bind parameters (which will pass to C<< $sth->execute >>)
+
+=item *
+
+Accept transformations or callbacks that operate on the whole row?
+
 =back
 
 =head1 SUPPORT
+
+=head2 Perldoc
 
 You can find documentation for this module with the perldoc command.
 
@@ -634,64 +654,64 @@ in addition to those websites please use your favorite search engine to discover
 
 Search CPAN
 
+The default CPAN search engine, useful to view POD in HTML format.
+
 L<http://search.cpan.org/dist/DBIx-RoboQuery>
 
 =item *
 
 RT: CPAN's Bug Tracker
 
+The RT ( Request Tracker ) website is the default bug/issue tracking system for CPAN.
+
 L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=DBIx-RoboQuery>
-
-=item *
-
-AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/DBIx-RoboQuery>
 
 =item *
 
 CPAN Ratings
 
+The CPAN Ratings is a website that allows community ratings and reviews of Perl modules.
+
 L<http://cpanratings.perl.org/d/DBIx-RoboQuery>
 
 =item *
 
-CPAN Forum
+CPAN Testers
 
-L<http://cpanforum.com/dist/DBIx-RoboQuery>
+The CPAN Testers is a network of smokers who run automated tests on uploaded CPAN distributions.
 
-=item *
-
-CPANTS Kwalitee
-
-L<http://cpants.perl.org/dist/overview/DBIx-RoboQuery>
-
-=item *
-
-CPAN Testers Results
-
-L<http://cpantesters.org/distro/D/DBIx-RoboQuery.html>
+L<http://www.cpantesters.org/distro/D/DBIx-RoboQuery>
 
 =item *
 
 CPAN Testers Matrix
 
+The CPAN Testers Matrix is a website that provides a visual overview of the test results for a distribution on various Perls/platforms.
+
 L<http://matrix.cpantesters.org/?dist=DBIx-RoboQuery>
+
+=item *
+
+CPAN Testers Dependencies
+
+The CPAN Testers Dependencies is a website that shows a chart of the test results of all dependencies for a distribution.
+
+L<http://deps.cpantesters.org/?module=DBIx::RoboQuery>
 
 =back
 
 =head2 Bugs / Feature Requests
 
 Please report any bugs or feature requests by email to C<bug-dbix-roboquery at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=DBIx-RoboQuery>.  I will be
-notified, and then you'll automatically be notified of progress on your bug as I make changes.
+the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=DBIx-RoboQuery>. You will be automatically notified of any
+progress on the request by the system.
 
 =head2 Source Code
 
 
-L<http://github.com/magnificent-tears/DBIx-RoboQuery/tree>
+L<http://github.com/rwstauner/DBIx-RoboQuery>
 
-  git clone git://github.com/magnificent-tears/DBIx-RoboQuery.git
+  git clone http://github.com/rwstauner/DBIx-RoboQuery
 
 =head1 AUTHOR
 

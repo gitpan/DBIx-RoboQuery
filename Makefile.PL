@@ -9,30 +9,31 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  'ABSTRACT' => 'Very configurable/programmable query object',
-  'AUTHOR' => 'Randy Stauner <rwstauner@cpan.org>',
-  'BUILD_REQUIRES' => {
-    'File::Find' => '0',
-    'File::Temp' => '0.22',
-    'ExtUtils::MakeMaker' => '6.30',
-    'Test::MockObject' => '1.09',
-    'Test::More' => '0.96'
+  "ABSTRACT" => "Very configurable/programmable query object",
+  "AUTHOR" => "Randy Stauner <rwstauner\@cpan.org>",
+  "BUILD_REQUIRES" => {
+    "File::Find" => 0,
+    "File::Temp" => "0.22",
+    "Test::MockObject" => "1.09",
+    "Test::More" => "0.96"
   },
-  'CONFIGURE_REQUIRES' => {
-    'ExtUtils::MakeMaker' => '6.30'
+  "CONFIGURE_REQUIRES" => {
+    "ExtUtils::MakeMaker" => "6.30"
   },
-  'DISTNAME' => 'DBIx-RoboQuery',
-  'EXE_FILES' => [],
-  'LICENSE' => 'perl',
-  'NAME' => 'DBIx::RoboQuery',
-  'PREREQ_PM' => {
-    'Carp' => '0',
-    'Sub::Chain::Group' => '0',
-    'Template' => '2.22'
+  "DISTNAME" => "DBIx-RoboQuery",
+  "EXE_FILES" => [],
+  "LICENSE" => "perl",
+  "NAME" => "DBIx::RoboQuery",
+  "PREREQ_PM" => {
+    "Carp" => 0,
+    "Sub::Chain::Group" => 0,
+    "Template" => "2.22",
+    "strict" => 0,
+    "warnings" => 0
   },
-  'VERSION' => '0.013',
-  'test' => {
-    'TESTS' => 't/*.t'
+  "VERSION" => "0.014",
+  "test" => {
+    "TESTS" => "t/*.t"
   }
 );
 

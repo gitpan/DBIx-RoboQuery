@@ -49,14 +49,16 @@ sub pmver {
 }
 
 eval { $v .= pmver('Carp','any version') };
+eval { $v .= pmver('ExtUtils::MakeMaker','6.30') };
 eval { $v .= pmver('File::Find','any version') };
 eval { $v .= pmver('File::Temp','0.22') };
-eval { $v .= pmver('Module::Build','0.3601') };
 eval { $v .= pmver('Sub::Chain::Group','any version') };
 eval { $v .= pmver('Template','2.22') };
 eval { $v .= pmver('Test::Exception','any version') };
 eval { $v .= pmver('Test::MockObject','1.09') };
 eval { $v .= pmver('Test::More','0.96') };
+eval { $v .= pmver('strict','any version') };
+eval { $v .= pmver('warnings','any version') };
 
 
 

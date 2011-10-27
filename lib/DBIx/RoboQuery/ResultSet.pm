@@ -11,8 +11,8 @@ use strict;
 use warnings;
 
 package DBIx::RoboQuery::ResultSet;
-BEGIN {
-  $DBIx::RoboQuery::ResultSet::VERSION = '0.013';
+{
+  $DBIx::RoboQuery::ResultSet::VERSION = '0.014';
 }
 BEGIN {
   $DBIx::RoboQuery::ResultSet::AUTHORITY = 'cpan:RWSTAUNER';
@@ -120,13 +120,20 @@ sub execute {
   my $sql = $self->{sql};
 
   # TODO: Time the query
-  $self->{sth}      = $self->{dbh}->prepare($sql)
+  my $sth = $self->{sth} = $self->{dbh}->prepare($sql)
     or croak $self->{dbh}->errstr;
-  $self->{executed} = $self->{sth}->execute(@params)
-    or croak $self->{sth}->errstr;
+
+  # call bind_param() regardless of @params b/c bind_param can specify a type
+  if( my $bind = $self->{bind_params} ){
+    local $_;
+    $sth->bind_param(@$_) for @$bind;
+  }
+
+  $self->{executed} = $sth->execute(@params)
+    or croak $sth->errstr;
   # TODO: stop timer
 
-  if( my $columns = $self->{sth}->{ $self->{hash_key_name} } ){
+  if( my $columns = $sth->{ $self->{hash_key_name} } ){
     # save the full order for later (but break the reference)
     $self->{all_columns} = [@$columns];
     # get the "other" columns (not keys, not dropped)
@@ -149,7 +156,7 @@ sub execute {
     }
   }
 
-  # FIXME: check $self->{sth}->errstr (or someting: see DBI)
+  # FIXME: check $sth->errstr (or someting: see DBI)
   # to make sure we got all records without error
 
   return $self->{executed};
@@ -289,7 +296,9 @@ sub query {
 __END__
 =pod
 
-=for :stopwords Randy Stauner dbh sql resultset DBI's hashrefs TODO
+=for :stopwords Randy Stauner ACKNOWLEDGEMENTS dbh sql resultset DBI's hashrefs TODO
+
+=encoding utf-8
 
 =head1 NAME
 
@@ -297,7 +306,7 @@ DBIx::RoboQuery::ResultSet - Configure the results to get what you want
 
 =head1 VERSION
 
-version 0.013
+version 0.014
 
 =head1 SYNOPSIS
 

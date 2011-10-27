@@ -11,8 +11,8 @@ use strict;
 use warnings;
 
 package DBIx::RoboQuery;
-BEGIN {
-  $DBIx::RoboQuery::VERSION = '0.013';
+{
+  $DBIx::RoboQuery::VERSION = '0.014';
 }
 BEGIN {
   $DBIx::RoboQuery::AUTHORITY = 'cpan:RWSTAUNER';
@@ -84,10 +84,29 @@ sub new {
 
 sub _arrayref_args {
   qw(
+    bind_params
     drop_columns
     key_columns
     order
   );
+}
+
+
+sub bind {
+  my ($self, @bind) = @_;
+
+  my $bound = $self->{bind_params} ||= [];
+
+  # auto-increment placeholder index unless all three values were passed
+  unshift @bind, ++$self->{bind_params_index}
+    unless @bind == 3;
+
+  # always push (don't set $bound->[$index]) because we're just going
+  # to pass all of these bind_param() in order
+  push @$bound, \@bind;
+
+  # convenience for putting directly into place in sql
+  return $bind[0] =~ /^\d+$/ ? '?' : $bind[0];
 }
 
 
@@ -226,8 +245,11 @@ sub transform {
 __END__
 =pod
 
-=for :stopwords Randy Stauner dbh sql resultset TODO arrayrefs cpan testmatrix url annocpan
-anno bugtracker rt cpants kwalitee diff irc mailto metadata placeholders
+=for :stopwords Randy Stauner ACKNOWLEDGEMENTS dbh sql resultset TODO arrayrefs cpan
+testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto
+metadata placeholders
+
+=encoding utf-8
 
 =head1 NAME
 
@@ -235,7 +257,7 @@ DBIx::RoboQuery - Very configurable/programmable query object
 
 =head1 VERSION
 
-version 0.013
+version 0.014
 
 =head1 SYNOPSIS
 
@@ -251,7 +273,7 @@ version 0.013
       dob as birthday,
       favorite_smell
     FROM users
-    WHERE dob < '[% minimum_birthdate() %]'
+    WHERE dob < [% query.bind(minimum_birthdate()) %]
   SQL
 
   # create query object from template
@@ -402,6 +424,59 @@ C<variables>
 A hashref of variables made available to the template
 
 =back
+
+=head2 bind
+
+  $query->bind($value);
+  $query->bind($value, \%attr);
+  $query->bind($p_num, $value, \%attr);
+
+Bind a value to a placeholder in the query.
+The provided arguments are saved and eventually passed to L<DBI/bind_param>.
+
+This can be useful for passing dynamic values
+through the database driver's quoting mechanism.
+
+For convenience a placeholder is returned
+so that the method can be called in place in a query template:
+
+  # in template:
+  WHERE field = [% query.bind(value) %]
+
+The placeholder will be the standard C<?> if the index is an integer,
+or it will simply return the placeholder otherwise
+which can be useful for drivers that allow named parameters:
+
+  WHERE field = [% query.bind(':foo', value, {}) %]
+  # becomes 'WHERE field = :foo'
+
+If you don't want the placeholder added to your query
+use the template's syntax to discard it.
+For example, with L<Template::Toolkit>:
+
+  [% CALL query.bind(value) %]
+
+For convenience the placeholder (C<$p_num>) will be filled in automatically
+(a simple incrementing integer starting at 1)
+unless you provide all three arguments
+(in which case they are passed as-is to L<DBI/bind_param>).
+
+B<Note> that the index only auto-increments if you don't supply one
+(by sending all three arguments):
+
+  $query->bind($a);         # placeholder 1
+  $query->bind($b, {});     # placeholder 2
+  $query->bind(2, $c, {});  # overwrite placeholder 2
+  $query->bind($d);         # placeholder 3   (a total of 3 bound parameters)
+  $query->bind(4, $e, {});  # placeholder 4   (a total of 4 bound parameters)
+  $query->bind($f);  # auto-inc to 4 (which will overwrite the previous item)
+
+So don't mix the auto-increment with explicit indexes
+unless you know what you are doing.
+
+Consistency and simplicity was chosen over the complexity
+added by special cases based on comparing the provided index
+to the current (if any) auto-increment.
 
 =head2 drop_columns
 
@@ -627,7 +702,7 @@ Write a lot more tests
 
 =item *
 
-Add a method to pass bind parameters (which will pass to C<< $sth->execute >>)
+Allow binding an arrayref and returning '?,?,?'
 
 =item *
 
@@ -709,9 +784,9 @@ progress on the request by the system.
 =head2 Source Code
 
 
-L<http://github.com/rwstauner/DBIx-RoboQuery>
+L<https://github.com/rwstauner/DBIx-RoboQuery>
 
-  git clone http://github.com/rwstauner/DBIx-RoboQuery
+  git clone https://github.com/rwstauner/DBIx-RoboQuery.git
 
 =head1 AUTHOR
 

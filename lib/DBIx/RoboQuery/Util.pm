@@ -11,8 +11,8 @@ use strict;
 use warnings;
 
 package DBIx::RoboQuery::Util;
-BEGIN {
-  $DBIx::RoboQuery::Util::VERSION = '0.013';
+{
+  $DBIx::RoboQuery::Util::VERSION = '0.014';
 }
 BEGIN {
   $DBIx::RoboQuery::Util::AUTHORITY = 'cpan:RWSTAUNER';
@@ -80,7 +80,9 @@ sub order_from_sql {
 __END__
 =pod
 
-=for :stopwords Randy Stauner dbh sql resultset ASC DESC
+=for :stopwords Randy Stauner ACKNOWLEDGEMENTS dbh sql resultset ASC DESC
+
+=encoding utf-8
 
 =head1 NAME
 
@@ -88,7 +90,7 @@ DBIx::RoboQuery::Util - Utility functions for DBIx::RoboQuery
 
 =head1 VERSION
 
-version 0.013
+version 0.014
 
 =head1 SYNOPSIS
 

@@ -32,13 +32,13 @@ no_index:
 provides:
   DBIx::RoboQuery:
     file: lib/DBIx/RoboQuery.pm
-    version: 0.014
+    version: 0.015
   DBIx::RoboQuery::ResultSet:
     file: lib/DBIx/RoboQuery/ResultSet.pm
-    version: 0.014
+    version: 0.015
   DBIx::RoboQuery::Util:
     file: lib/DBIx/RoboQuery/Util.pm
-    version: 0.014
+    version: 0.015
 requires:
   Carp: 0
   Sub::Chain::Group: 0
@@ -50,7 +50,7 @@ resources:
   bugtracker: http://rt.cpan.org/Public/Dist/Display.html?Name=DBIx-RoboQuery
   homepage: https://github.com/rwstauner/DBIx-RoboQuery
   repository: https://github.com/rwstauner/DBIx-RoboQuery.git
-version: 0.014
+version: 0.015
 x_Dist_Zilla:
   plugins:
     -
@@ -168,7 +168,7 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::Test::PodSpelling
       name: '@Author::RWSTAUNER/Test::PodSpelling'
-      version: 2.1.0
+      version: 2.001001
     -
       class: Dist::Zilla::Plugin::Test::UnusedVars
       name: '@Author::RWSTAUNER/@TestingMania/Test::UnusedVars'

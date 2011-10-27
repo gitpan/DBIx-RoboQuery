@@ -12,7 +12,7 @@ use warnings;
 
 package DBIx::RoboQuery;
 {
-  $DBIx::RoboQuery::VERSION = '0.014';
+  $DBIx::RoboQuery::VERSION = '0.015';
 }
 BEGIN {
   $DBIx::RoboQuery::AUTHORITY = 'cpan:RWSTAUNER';
@@ -27,7 +27,7 @@ use Template 2.22; # Template Toolkit
 
 sub new {
   my $class = shift;
-  my %opts = ref($_[0]) eq 'HASH' ? %{$_[0]} : @_;
+  my %opts = @_ == 1 ? %{ $_[0] } : @_;
 
   # Params::Validate not currently warranted
   # (since it's still missing the "mutually exclusive" feature)
@@ -67,14 +67,15 @@ sub new {
 
   $self->prepare_transformations();
 
-  $self->{tt} = Template->new(
+  $self->{tt} ||= Template->new({
     ABSOLUTE => 1,
     STRICT => 1,
     VARIABLES => {
       query => $self,
       %{$self->{variables}}
-    }
-  )
+    },
+    %{ $self->{template_options} || {} },
+  })
     or die "$class error: Template::Toolkit failed: $Template::ERROR\n";
 
   return $self;
@@ -152,6 +153,7 @@ sub _pass_through_args {
     prefix
     resultset_class
     suffix
+    template_options
     transformations
     variables
   ));
@@ -257,7 +259,7 @@ DBIx::RoboQuery - Very configurable/programmable query object
 
 =head1 VERSION
 
-version 0.014
+version 0.015
 
 =head1 SYNOPSIS
 
@@ -409,6 +411,16 @@ A string to be prepended to the SQL before parsing the template
 C<suffix>
 
 A string to be appended  to the SQL before parsing the template
+
+=item *
+
+C<template_options>
+
+A hashref of options that will be merged into the options to
+L<< Template->new()|Template >>
+You can use this to overwrite the default options, but be sure to use the
+C<variables> options rather than including C<VARIABLES> in this hash
+unless you don't want the default variables to be available to the template.
 
 =item *
 

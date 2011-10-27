@@ -22,6 +22,7 @@ t/query.t
 t/resultset-preference.t
 t/resultset.t
 t/synopsis.t
+t/template.t
 t/util.t
 xt/author/critic.t
 xt/author/pod-spell.t

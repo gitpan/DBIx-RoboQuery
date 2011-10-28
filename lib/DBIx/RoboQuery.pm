@@ -12,7 +12,7 @@ use warnings;
 
 package DBIx::RoboQuery;
 {
-  $DBIx::RoboQuery::VERSION = '0.015';
+  $DBIx::RoboQuery::VERSION = '0.016';
 }
 BEGIN {
   $DBIx::RoboQuery::AUTHORITY = 'cpan:RWSTAUNER';
@@ -259,11 +259,11 @@ DBIx::RoboQuery - Very configurable/programmable query object
 
 =head1 VERSION
 
-version 0.015
+version 0.016
 
 =head1 SYNOPSIS
 
-  my $template_string = <<'  SQL';
+  my $template_string = <<SQL;
   [%
     CALL query.key_columns('user_id');
     CALL query.drop_columns('favorite_smell');

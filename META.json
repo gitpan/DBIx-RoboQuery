@@ -61,15 +61,15 @@
    "provides" : {
       "DBIx::RoboQuery" : {
          "file" : "lib/DBIx/RoboQuery.pm",
-         "version" : "0.015"
+         "version" : "0.016"
       },
       "DBIx::RoboQuery::ResultSet" : {
          "file" : "lib/DBIx/RoboQuery/ResultSet.pm",
-         "version" : "0.015"
+         "version" : "0.016"
       },
       "DBIx::RoboQuery::Util" : {
          "file" : "lib/DBIx/RoboQuery/Util.pm",
-         "version" : "0.015"
+         "version" : "0.016"
       }
    },
    "release_status" : "stable",
@@ -85,7 +85,7 @@
          "web" : "https://github.com/rwstauner/DBIx-RoboQuery"
       }
    },
-   "version" : "0.015",
+   "version" : "0.016",
    "x_Dist_Zilla" : {
       "plugins" : [
          {
@@ -236,11 +236,6 @@
          {
             "class" : "Dist::Zilla::Plugin::Test::UnusedVars",
             "name" : "@Author::RWSTAUNER/@TestingMania/Test::UnusedVars",
-            "version" : "2.0.1"
-         },
-         {
-            "class" : "Dist::Zilla::Plugin::Test::Synopsis",
-            "name" : "@Author::RWSTAUNER/@TestingMania/Test::Synopsis",
             "version" : "2.0.1"
          },
          {

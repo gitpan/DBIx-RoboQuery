@@ -1,5 +1,14 @@
 Revision history for DBIx::RoboQuery
 
+0.017     2012-05-08T23:55:41Z
+
+  [Enhancements]
+  - Add 'row_count' attribute
+  - Time query operations (available as a hashref via the 'times' method)
+
+  [Tests]
+  - Rewrite t/synopsis.t to work without Pod::Eventual::Simple
+
 0.016     2011-10-28T03:27:23Z
 
   - Fix heredoc in Synopis POD (and fix synopsis tests)

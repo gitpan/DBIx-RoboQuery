@@ -12,7 +12,7 @@ use warnings;
 
 package DBIx::RoboQuery;
 {
-  $DBIx::RoboQuery::VERSION = '0.016';
+  $DBIx::RoboQuery::VERSION = '0.017';
 }
 BEGIN {
   $DBIx::RoboQuery::AUTHORITY = 'cpan:RWSTAUNER';
@@ -249,7 +249,7 @@ __END__
 
 =for :stopwords Randy Stauner ACKNOWLEDGEMENTS dbh sql resultset TODO arrayrefs cpan
 testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto
-metadata placeholders
+metadata placeholders metacpan
 
 =encoding utf-8
 
@@ -259,7 +259,7 @@ DBIx::RoboQuery - Very configurable/programmable query object
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 SYNOPSIS
 

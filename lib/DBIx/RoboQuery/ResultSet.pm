@@ -12,7 +12,7 @@ use warnings;
 
 package DBIx::RoboQuery::ResultSet;
 {
-  $DBIx::RoboQuery::ResultSet::VERSION = '0.016';
+  $DBIx::RoboQuery::ResultSet::VERSION = '0.017';
 }
 BEGIN {
   $DBIx::RoboQuery::ResultSet::AUTHORITY = 'cpan:RWSTAUNER';
@@ -20,6 +20,7 @@ BEGIN {
 # ABSTRACT: Configure the results to get what you want
 
 use Carp qw(croak carp);
+use Timer::Simple;
 
 
 sub new {
@@ -27,6 +28,8 @@ sub new {
   my $query = shift;
   my %opts = ref($_[0]) eq 'HASH' ? %{$_[0]} : @_;
   my $self = {
+    row_count     => -1,
+    times         => {},
     query => $query,
     default_slice => {},
 
@@ -85,7 +88,12 @@ sub array {
       @tr_args = ( [@col[@$slice]] );
     }
   }
+
+  my $t = Timer::Simple->new;
   my $rows = $self->{sth}->fetchall_arrayref(@args);
+  $self->{times}{fetch} = $t->stop;
+  $self->{row_count} = @$rows;
+
   # if @tr_args is empty, the hash will be the only argument sent
   return $self->{transformations}
     ? [map { $self->{transformations}->call(@tr_args, $_) } @$rows]
@@ -119,9 +127,10 @@ sub execute {
   # the sql attribute is cached from $query->sql in the constructor
   my $sql = $self->{sql};
 
-  # TODO: Time the query
+  my $t = Timer::Simple->new;
   my $sth = $self->{sth} = $self->{dbh}->prepare($sql)
     or croak $self->{dbh}->errstr;
+  $self->{times}{prepare} = $t->stop;
 
   # call bind_param() regardless of @params b/c bind_param can specify a type
   if( my $bind = $self->{bind_params} ){
@@ -129,9 +138,10 @@ sub execute {
     $sth->bind_param(@$_) for @$bind;
   }
 
+  $t->restart;
   $self->{executed} = $sth->execute(@params)
     or croak $sth->errstr;
-  # TODO: stop timer
+  $self->{times}{execute} = $t->stop;
 
   if( my $columns = $sth->{ $self->{hash_key_name} } ){
     # save the full order for later (but break the reference)
@@ -197,12 +207,17 @@ sub hash {
     ? sub { my $r = $sth->fetchrow_hashref(); $r && $tr->call($r); }
     : sub {         $sth->fetchrow_hashref(); };
 
+  # we only increase the row count for new (not overridden) hashes
+  my $count = 0;
+  my $t = Timer::Simple->new;
+
   # check for preferences once... if there are none, do the quick version
   if( !$self->{preferences} || !@{$self->{preferences}} ){
     # we can't honor drop_columns with fetchall_hashref(), so fake it
     while( my $row = $fetchrow->() ){
       my $hash = $root;
       $hash = ($hash->{ $row->{$_} } ||= {}) for @key_columns;
+      ++$count unless keys %$hash;
       @$hash{@columns}  = @$row{@columns};
     }
   }
@@ -219,10 +234,15 @@ sub hash {
       if( keys %$hash ){
         $row = $self->preference({%$drop, %$hash}, $row);
       }
+      else {
+        ++$count;
+      }
       @$drop{@drop_columns} = @$row{@drop_columns};
       @$hash{@columns}  = @$row{@columns};
     }
   }
+  $self->{times}{fetch} = $t->stop;
+  $self->{row_count} = $count;
   return $root;
 }
 
@@ -288,6 +308,19 @@ sub query {
   return $_[0]->{query};
 }
 
+
+sub row_count {
+  return $_[0]->{row_count};
+}
+
+
+sub times {
+  my ($self) = @_;
+  my %times = %{ $self->{times} };
+  $times{total} = $times{prepare} + $times{execute} + $times{fetch};
+  return \%times;
+}
+
 # The DBI objects clean up after themselves, so DESTROY not currently warranted
 
 1;
@@ -306,7 +339,7 @@ DBIx::RoboQuery::ResultSet - Configure the results to get what you want
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 SYNOPSIS
 
@@ -489,6 +522,43 @@ See L<DBIx::RoboQuery/prefer> for details on specifying record preferences.
   my $query = $resultset->query;
 
 Returns the query object (in case you lost it).
+
+=head2 row_count
+
+Returns the number of rows returned via L</array> or L</hash>.
+It will return C<-1> until after one of those methods have been called.
+
+For L</array> this is the same as C<< scalar @$rows >>.
+
+For L</hash> it is the number of (non-duplicate) rows
+(which would be harder to count manually from the hash tree).
+
+=head2 times
+
+Returns a hashref of timing info
+(the length of time each operation took in fractional seconds).
+
+Keys include:
+
+=over 4
+
+=item *
+
+C<prepare> - Prepare the statement
+
+=item *
+
+C<execute> - Execute the statement
+
+=item *
+
+C<fetch> - Fetch (and transform) all the records
+
+=item *
+
+C<total> - Sum of all times
+
+=back
 
 =for test_synopsis my $query;
 

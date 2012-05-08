@@ -12,7 +12,7 @@ use warnings;
 
 package DBIx::RoboQuery::Util;
 {
-  $DBIx::RoboQuery::Util::VERSION = '0.016';
+  $DBIx::RoboQuery::Util::VERSION = '0.017';
 }
 BEGIN {
   $DBIx::RoboQuery::Util::AUTHORITY = 'cpan:RWSTAUNER';
@@ -90,7 +90,7 @@ DBIx::RoboQuery::Util - Utility functions for DBIx::RoboQuery
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 SYNOPSIS
 

@@ -28,10 +28,11 @@ my %WriteMakefileArgs = (
     "Carp" => 0,
     "Sub::Chain::Group" => 0,
     "Template" => "2.22",
+    "Timer::Simple" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.016",
+  "VERSION" => "0.017",
   "test" => {
     "TESTS" => "t/*.t"
   }

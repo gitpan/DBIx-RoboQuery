@@ -7,15 +7,15 @@ use DBIx::RoboQuery;
 # try to keep things a little organized... script near the top, helper subs at the bottom
 
 # don't make these prereqs for the distribution, but we need them for this author test
-my ($dbd, $pod_parser) = qw(SQLite Pod::Eventual::Simple);
-foreach my $req ( 'DBI', "DBD::$dbd", $pod_parser ){
+my $dbd = 'SQLite';
+foreach my $req ( 'DBI', "DBD::$dbd" ){
   eval "require $req";
   plan skip_all => "$req required for this test"
     if $@;
 }
 
 # all the tests are in the heredoc:
-plan tests => 12;
+plan tests => 18;
 
 # test everything in DBIx::RoboQuery/SYNOPSIS
 my $tests = <<'TESTS';
@@ -35,6 +35,11 @@ like($query->sql, qr[^\s*SELECT user_id,.+FROM users\s+WHERE dob < \?\s*$]s, 'ex
 is_deeply($resultset->{bind_params}, [[1, '2000-01-01']], 'bind values');
 is_deeply(\@non_key, [qw(name birthday)], 'non_key columns');
 is_deeply($records, expected_records, 'expected records');
+is $resultset->row_count, 2, 'counted 2 rows';
+
+my $times = $resultset->times;
+is $times->{total}, $times->{prepare} + $times->{execute} + $times->{fetch}, 'total';
+ok $times->{$_} > 0, "measured $_ time" for keys %$times;
 TESTS
 
 my $dbh = prepare_database();
@@ -74,24 +79,27 @@ sub arbitrary_date_function { '2000-01-01' }
 
 # use actual SYNOPSIS
 sub get_synopsis_pod {
-  my $pod = '';
-  my @paras = @{Pod::Eventual::Simple->read_file($INC{'DBIx/RoboQuery.pm'})};
+  my $pm = $INC{'DBIx/RoboQuery.pm'};
+
+  open  my $fh, '<', $pm
+    or die "Failed to open '$pm': $!";
+
+  # incredibly basic pod parser
   my $in_synopsis = 0;
-  foreach my $para (@paras){
-    if( $para->{type} eq 'command' ){
-      #print STDERR Dumper($para);
-      if( $para->{command} eq 'head1' && $para->{content} =~ /SYNOPSIS/ ){
-        $in_synopsis = 1;
-      }
-      # the next command after =head1 SYNOPSIS ends the synopsis
-      elsif( $in_synopsis && $para->{command} ){
-        last;
-      }
+  my $pod = '';
+  while( <$fh> ){
+    # specifically ignore the =for test_synopsis b/c we've already defined my $dbh
+    if( /^=head1 SYNOPSIS/ ){
+      $in_synopsis = 1;
+    }
+    elsif( $in_synopsis && /^=\w+/ ){
+      last;
     }
     elsif( $in_synopsis ){
-      $pod .= $para->{content};
+      $pod .= $_;
     }
   }
+
   $pod =~ s/^  //mg;
   return $pod;
 }

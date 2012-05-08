@@ -57,6 +57,7 @@ eval { $v .= pmver('Template','2.22') };
 eval { $v .= pmver('Test::Exception','any version') };
 eval { $v .= pmver('Test::MockObject','1.09') };
 eval { $v .= pmver('Test::More','0.96') };
+eval { $v .= pmver('Timer::Simple','any version') };
 eval { $v .= pmver('strict','any version') };
 eval { $v .= pmver('warnings','any version') };
 

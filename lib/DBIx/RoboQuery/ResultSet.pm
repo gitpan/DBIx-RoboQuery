@@ -12,7 +12,7 @@ use warnings;
 
 package DBIx::RoboQuery::ResultSet;
 {
-  $DBIx::RoboQuery::ResultSet::VERSION = '0.017';
+  $DBIx::RoboQuery::ResultSet::VERSION = '0.018';
 }
 BEGIN {
   $DBIx::RoboQuery::ResultSet::AUTHORITY = 'cpan:RWSTAUNER';
@@ -90,14 +90,16 @@ sub array {
   }
 
   my $t = Timer::Simple->new;
+
   my $rows = $self->{sth}->fetchall_arrayref(@args);
+  $rows = [map { $self->{transformations}->call(@tr_args, $_) } @$rows]
+    if $self->{transformations};
+
+  # include transformations in the time for consistency with hash()
   $self->{times}{fetch} = $t->stop;
   $self->{row_count} = @$rows;
 
-  # if @tr_args is empty, the hash will be the only argument sent
-  return $self->{transformations}
-    ? [map { $self->{transformations}->call(@tr_args, $_) } @$rows]
-    : $rows;
+  return $rows;
 }
 
 # convenience method for subclasses
@@ -339,7 +341,7 @@ DBIx::RoboQuery::ResultSet - Configure the results to get what you want
 
 =head1 VERSION
 
-version 0.017
+version 0.018
 
 =head1 SYNOPSIS
 

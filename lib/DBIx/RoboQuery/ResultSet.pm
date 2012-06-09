@@ -12,7 +12,7 @@ use warnings;
 
 package DBIx::RoboQuery::ResultSet;
 {
-  $DBIx::RoboQuery::ResultSet::VERSION = '0.018';
+  $DBIx::RoboQuery::ResultSet::VERSION = '0.019';
 }
 BEGIN {
   $DBIx::RoboQuery::ResultSet::AUTHORITY = 'cpan:RWSTAUNER';
@@ -108,6 +108,10 @@ sub _arrayref_args {
   my ($self) = @_;
   return $self->{query}->_arrayref_args;
 }
+
+
+sub bound_params { $_[0]->query->bound_params }
+sub bound_values { $_[0]->query->bound_values }
 
 
 sub columns {
@@ -341,7 +345,7 @@ DBIx::RoboQuery::ResultSet - Configure the results to get what you want
 
 =head1 VERSION
 
-version 0.018
+version 0.019
 
 =head1 SYNOPSIS
 
@@ -433,6 +437,14 @@ you can set C<default_slice> to C<[]> to return to the DBI default.
 Like many options this can be set on the query or the resultset.
 
   DBIx::RoboQuery->new(default_slice => [], %opts);
+
+=head2 bound_params
+
+See L<DBIx::RoboQuery/bound_params>.
+
+=head2 bound_values
+
+See L<DBIx::RoboQuery/bound_values>.
 
 =head2 columns
 

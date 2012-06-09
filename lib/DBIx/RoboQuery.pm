@@ -12,7 +12,7 @@ use warnings;
 
 package DBIx::RoboQuery;
 {
-  $DBIx::RoboQuery::VERSION = '0.018';
+  $DBIx::RoboQuery::VERSION = '0.019';
 }
 BEGIN {
   $DBIx::RoboQuery::AUTHORITY = 'cpan:RWSTAUNER';
@@ -103,11 +103,21 @@ sub bind {
     unless @bind == 3;
 
   # always push (don't set $bound->[$index]) because we're just going
-  # to pass all of these bind_param() in order
+  # to pass all of these to bind_param() in order
   push @$bound, \@bind;
 
   # convenience for putting directly into place in sql
   return $bind[0] =~ /^\d+$/ ? '?' : $bind[0];
+}
+
+
+sub bound_params {
+  return @{ $_[0]->{bind_params} || [] };
+}
+
+
+sub bound_values {
+  return map { $_->[1] } $_[0]->bound_params;
 }
 
 
@@ -211,7 +221,6 @@ sub resultset {
 
 sub sql {
   my ($self, $vars) = @_;
-  $vars ||= {};
   my $output;
 
   # Cache the result to avoid duplicating function calls,
@@ -221,6 +230,7 @@ sub sql {
     $output = $self->{processed_sql};
   }
   else {
+    $vars ||= {};
     my $sql = $self->pre_process_sql($self->{template});
     $self->{tt}->process(\$sql, $vars, \$output)
       or die($self->{tt}->error(), "\n");
@@ -259,7 +269,7 @@ DBIx::RoboQuery - Very configurable/programmable query object
 
 =head1 VERSION
 
-version 0.018
+version 0.019
 
 =head1 SYNOPSIS
 
@@ -490,6 +500,35 @@ Consistency and simplicity was chosen over the complexity
 added by special cases based on comparing the provided index
 to the current (if any) auto-increment.
 
+=head2 bound_params
+
+  my @bound = $query->bound_params;
+  # returns ( [ 1, "foo" ], [ 2, "bar", { TYPE => SQL_VARCHAR } ] )
+
+Returns a list of arrayrefs representing parameters bound to the query.
+Each arrayref is structured to be flattened and passed to L<DBI/bind_param>.
+Each will contain it's index (or placeholder), value,
+and possibly a hashref or value to hint at the data-type.
+
+=head2 bound_values
+
+This is a wrapper around L</bound_params>
+that returns only the values:
+
+  my @bound = $query->bound_values;
+  # returns ("foo", "bar")
+
+B<Note>: Values are returned in the order they were bound.
+If L</bind> is used in any way other than the default auto-increment manner
+the order (or even the number) of the values may be confusing and unhelpful.
+In that case you probably want to use L</bound_params>
+and get the values out manually.
+This behavior may be improved in the future and should not be relied upon.
+(Suggestions and patches for improved behavior are welcome.)
+The behavior of this method
+when L</bind> is used only in the default auto-increment manner
+will not change.
+
 =head2 drop_columns
 
   # get
@@ -719,6 +758,14 @@ Allow binding an arrayref and returning '?,?,?'
 =item *
 
 Accept transformations or callbacks that operate on the whole row?
+
+=item *
+
+Accept bind variables in the constructor?
+
+=item *
+
+Add support for L<DBIx::Connector>?
 
 =back
 

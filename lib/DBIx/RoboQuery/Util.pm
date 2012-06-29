@@ -12,7 +12,7 @@ use warnings;
 
 package DBIx::RoboQuery::Util;
 {
-  $DBIx::RoboQuery::Util::VERSION = '0.019';
+  $DBIx::RoboQuery::Util::VERSION = '0.020';
 }
 BEGIN {
   $DBIx::RoboQuery::Util::AUTHORITY = 'cpan:RWSTAUNER';
@@ -80,9 +80,9 @@ sub order_from_sql {
 __END__
 =pod
 
-=for :stopwords Randy Stauner ACKNOWLEDGEMENTS dbh sql resultset ASC DESC
-
 =encoding utf-8
+
+=for :stopwords Randy Stauner ACKNOWLEDGEMENTS dbh sql resultset ASC DESC
 
 =head1 NAME
 
@@ -90,7 +90,7 @@ DBIx::RoboQuery::Util - Utility functions for DBIx::RoboQuery
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 SYNOPSIS
 

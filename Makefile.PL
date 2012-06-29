@@ -12,8 +12,11 @@ my %WriteMakefileArgs = (
   "ABSTRACT" => "Very configurable/programmable query object",
   "AUTHOR" => "Randy Stauner <rwstauner\@cpan.org>",
   "BUILD_REQUIRES" => {
+    "ExtUtils::MakeMaker" => 0,
     "File::Find" => 0,
+    "File::Spec::Functions" => 0,
     "File::Temp" => "0.22",
+    "List::Util" => 0,
     "Test::MockObject" => "1.09",
     "Test::More" => "0.96"
   },
@@ -32,7 +35,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.019",
+  "VERSION" => "0.020",
   "test" => {
     "TESTS" => "t/*.t"
   }

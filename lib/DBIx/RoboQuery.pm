@@ -12,8 +12,10 @@ use warnings;
 
 package DBIx::RoboQuery;
 {
-  $DBIx::RoboQuery::VERSION = '0.019';
+  $DBIx::RoboQuery::VERSION = '0.020';
 }
+# git description: v0.019-3-g8dbe364
+
 BEGIN {
   $DBIx::RoboQuery::AUTHORITY = 'cpan:RWSTAUNER';
 }
@@ -257,11 +259,11 @@ sub transform {
 __END__
 =pod
 
+=encoding utf-8
+
 =for :stopwords Randy Stauner ACKNOWLEDGEMENTS dbh sql resultset TODO arrayrefs cpan
 testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto
 metadata placeholders metacpan
-
-=encoding utf-8
 
 =head1 NAME
 
@@ -269,7 +271,7 @@ DBIx::RoboQuery - Very configurable/programmable query object
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 SYNOPSIS
 
@@ -280,8 +282,9 @@ version 0.019
     CALL query.prefer('favorite_smell != "wet dog"');
     CALL query.transform('format_date', {fields => 'birthday'});
   %]
-    SELECT user_id,
+    SELECT
       name,
+      user_id,
       dob as birthday,
       favorite_smell
     FROM users
@@ -309,7 +312,7 @@ version 0.019
 
   $resultset->execute;
   my @non_key = $resultset->non_key_columns;
-  # do something where i want to know the difference key and non-key columns
+  # do something where i want to know the difference between key and non-key columns
 
   # get records (with transformations applied and specified columns dropped)
   my $records = $resultset->hash;            # like DBI/fetchall_hashref

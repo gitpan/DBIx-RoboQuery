@@ -11,7 +11,7 @@ lib/DBIx/RoboQuery.pm
 lib/DBIx/RoboQuery/ResultSet.pm
 lib/DBIx/RoboQuery/Util.pm
 t/00-compile.t
-t/000-report-versions-tiny.t
+t/00-report-prereqs.t
 t/bind.t
 t/lib/THelper.pm
 t/lib/TRoboQuery.pm

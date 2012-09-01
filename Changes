@@ -1,5 +1,10 @@
 Revision history for DBIx::RoboQuery
 
+0.021     2012-09-01T17:49:59Z
+
+  - Add 'squeeze_blank_lines' option
+  - Add 'tr_fields()' and 'tr_groups()' as shortcuts for 'transform()'
+
 0.020     2012-06-29T23:05:40Z
 
   - Ensure $resultset->columns() preserves SELECT order

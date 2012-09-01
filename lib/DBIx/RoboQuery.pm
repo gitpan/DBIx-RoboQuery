@@ -12,9 +12,9 @@ use warnings;
 
 package DBIx::RoboQuery;
 {
-  $DBIx::RoboQuery::VERSION = '0.020';
+  $DBIx::RoboQuery::VERSION = '0.021';
 }
-# git description: v0.019-3-g8dbe364
+# git description: v0.020-3-gba2a214
 
 BEGIN {
   $DBIx::RoboQuery::AUTHORITY = 'cpan:RWSTAUNER';
@@ -164,6 +164,7 @@ sub _pass_through_args {
     default_slice
     prefix
     resultset_class
+    squeeze_blank_lines
     suffix
     template_options
     transformations
@@ -236,6 +237,11 @@ sub sql {
     my $sql = $self->pre_process_sql($self->{template});
     $self->{tt}->process(\$sql, $vars, \$output)
       or die($self->{tt}->error(), "\n");
+
+    # this is fairly naive, but for SQL would usually be fine
+    $output =~ s/\n\s*\n+/\n/g
+      if $self->{squeeze_blank_lines};
+
     $self->{processed_sql} = $output;
   }
   return $output;
@@ -251,12 +257,27 @@ sub transform {
   $tr->append(@tr);
 }
 
+# shortcuts
+
+
+sub tr_fields {
+  my ($self, $name, $fields, @args) = @_;
+  return $self->transform($name, fields => $fields, args => [@args]);
+}
+
+sub tr_groups {
+  my ($self, $name, $groups, @args) = @_;
+  return $self->transform($name, groups => $groups, args => [@args]);
+}
+
+# TODO: tr_row?  could do it named func style,
+# but a template of '[% row.fld1 = 0 %]' seems more useful
+# (updating the hash should work, but if not this would: '[% _save_row(row) %]')
+
 1;
 
-
-
-
 __END__
+
 =pod
 
 =encoding utf-8
@@ -271,7 +292,7 @@ DBIx::RoboQuery - Very configurable/programmable query object
 
 =head1 VERSION
 
-version 0.020
+version 0.021
 
 =head1 SYNOPSIS
 
@@ -418,6 +439,15 @@ An arrayref of column names to specify the sort order;  See L</order>.
 C<prefix>
 
 A string to be prepended to the SQL before parsing the template
+
+=item *
+
+C<squeeze_blank_lines>
+
+Boolean; If enabled, empty lines (or lines with only whitespace)
+will be removed from the compiled template.
+This can make it easier to look at sql that has a lot of template directives.
+(Disabled by default.)
 
 =item *
 
@@ -708,6 +738,23 @@ Add a transformation to be applied to the result data.
 The default implementation simply passes the arguments
 to L<Sub::Chain::Group/append>.
 
+=head2 tr_fields
+
+Shortcut for calling L</transform> on fields.
+
+  $query->tr_fields("func", "fld1", "arg1", "arg2");
+
+Is equivalent to
+
+  $query->transform("func", fields => "fld1", args => ["arg1", "arg2"]);
+
+The second parameter (the fields) can be either a single string
+or an array ref.
+
+=head2 tr_groups
+
+Just like L</tr_fields> but the second parameter is for groups.
+
 =for Pod::Coverage result results
 
 =for test_synopsis my $dbh; # NOTE: This SYNOPSIS is read in and tested in t/synopsis.t
@@ -862,4 +909,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

@@ -48,6 +48,10 @@ my @templates = (
     qq|trim|,
   ],
   [
+    {sql => qq|[% CALL query.tr_fields('trim', 'address'); GET query.transformations.queue.first.first %]|, transformations => $transformations},
+    qq|trim|,
+  ],
+  [
     {sql => $cond_while},
     qq|1   WHERE  account_number LIKE '%D001%'   OR  account_number LIKE '%D002%' |,
     {account_numbers => [' D001 ', 'D002']}
@@ -76,8 +80,31 @@ my @templates = (
   ],
 );
 
-# isa + throws + templates + (key_columns) + (process once) + (isa R) + preferences + resultset_class
-plan tests => 1 + 2 + @templates + 4 + 12 + 1 + 4 + 5;
+{
+  # __FILE__ has unix line endings; give the template native OS line-endings
+  my $template = join($/, split /\n/, <<SQL) . $/;
+  WHERE
+    fld1 = 1
+
+    [% IF nu_uh %] 1 [% END %]
+
+    AND
+
+  fld2 = 2
+\x20\x20
+SQL
+
+  push(@templates,
+    [
+      {sql => $template},
+      qq|  WHERE\n    fld1 = 1\n\n    \n\n    AND\n\n  fld2 = 2\n  \n|,
+    ],
+    [
+      {sql => $template, squeeze_blank_lines => 1},
+      qq|  WHERE\n    fld1 = 1\n    AND\n  fld2 = 2\n|,
+    ],
+  );
+}
 
 my $mod = 'DBIx::RoboQuery';
 eval "require $mod" or die $@;
@@ -88,7 +115,7 @@ isa_ok($mod->new(sql => 'SQL'), $mod);
   throws_ok(sub { $mod->new() }, qr'one of', 'one');
 
 #my $config = test_config;
-my $always = {hello => {there => 'silly', you => 'rabbit'}};
+my $always = {hello => {there => 'silly', you => 'rabbit'}, nu_uh => 0};
 
 foreach my $template ( @templates ){
   my( $in, $out, $vars ) = @$template;
@@ -121,11 +148,19 @@ foreach my $template ( @templates ){
   is($q->sql, '12hi', 'sql');
   is_deeply($i, 12, 'only process once');
 
-  $q = $mod->new(sql => qq|[% CALL query.transform('trim', 'fields', 'help') %]hi|, transformations => $transformations);
+    foreach my $sql (
+      qq|[% CALL query.transform('trim', 'fields', 'help') %]hi|,
+      qq|[% CALL query.tr_fields('trim', 'help') %]hi|,
+      qq|[% CALL query.transform('trim', 'groups', 'helpful') %]hi|,
+      qq|[% CALL query.tr_groups('trim', 'helpful') %]hi|,
+    ){
+  $q = $mod->new(sql => $sql, transformations => $transformations);
+  $q->{transformations}->group(helpful => ['help']);
   is($q->sql, 'hi', 'sql');
   is(scalar @{$q->{transformations}->{queue}}, 1, 'only process once');
   is($q->sql, 'hi', 'sql');
   is(scalar @{$q->{transformations}->{queue}}, 1, 'only process once');
+    }
 }
 
 isa_ok($mod->new(sql => "hi.")->resultset, 'DBIx::RoboQuery::ResultSet');

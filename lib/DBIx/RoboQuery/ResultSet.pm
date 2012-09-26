@@ -12,7 +12,7 @@ use warnings;
 
 package DBIx::RoboQuery::ResultSet;
 {
-  $DBIx::RoboQuery::ResultSet::VERSION = '0.021';
+  $DBIx::RoboQuery::ResultSet::VERSION = '0.030';
 }
 BEGIN {
   $DBIx::RoboQuery::ResultSet::AUTHORITY = 'cpan:RWSTAUNER';
@@ -302,16 +302,12 @@ sub preference {
   return $records[-1]
     if !$rules || !@$rules;
 
-  my $templater = $self->{query}->{tt};
-
   foreach my $rule ( @$rules ){
     my $template = "[% IF $rule %]1[% ELSE %]0[% END %]";
     # reverse records so that if any are equal the last one in wins
     foreach my $record ( reverse @records ){
-      my $found = '';
-      $templater->process(\$template, $record, \$found);
+      my $found = $self->{query}->_process_template(\$template, $record);
       return $record if $found;
-      #$self->evaluate_preference($self->{query}{tt}, $rule, $record);
     }
   }
   # last record is DBI compatibile plus it is often the newest record
@@ -354,7 +350,7 @@ DBIx::RoboQuery::ResultSet - Configure the results to get what you want
 
 =head1 VERSION
 
-version 0.021
+version 0.030
 
 =head1 SYNOPSIS
 

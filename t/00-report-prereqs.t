@@ -63,7 +63,7 @@ for my $mod ( @modules ) {
     push @reports, ["missing", $mod];
   }
 }
-    
+
 if ( @reports ) {
   my $vl = max map { length $_->[0] } @reports;
   my $ml = max map { length $_->[1] } @reports;

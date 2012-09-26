@@ -12,9 +12,9 @@ use warnings;
 
 package DBIx::RoboQuery;
 {
-  $DBIx::RoboQuery::VERSION = '0.021';
+  $DBIx::RoboQuery::VERSION = '0.030';
 }
-# git description: v0.020-3-gba2a214
+# git description: v0.021-3-g02c516d
 
 BEGIN {
   $DBIx::RoboQuery::AUTHORITY = 'cpan:RWSTAUNER';
@@ -40,6 +40,7 @@ sub new {
     key_columns => [],
     resultset_class => "${class}::ResultSet",
     variables => {},
+    template_private_vars => $Template::Stash::PRIVATE,
   };
 
   bless $self, $class;
@@ -168,6 +169,7 @@ sub _pass_through_args {
     suffix
     template_options
     transformations
+    template_private_vars
     variables
   ));
 }
@@ -206,6 +208,19 @@ sub prefer {
   push(@{ $self->{preferences} ||= [] }, @_);
 }
 
+sub _process_template {
+  my ($self, $template, $vars) = @_;
+  my $output = '';
+
+  # this is a regexp for vars that are considered private (will appear undef in template)
+  local $Template::Stash::PRIVATE = $self->{template_private_vars};
+
+  $self->{tt}->process($template, $vars, \$output)
+    or die($self->{tt}->error(), "\n");
+
+  return $output;
+}
+
 
 sub resultset {
   my ($self) = shift;
@@ -235,8 +250,7 @@ sub sql {
   else {
     $vars ||= {};
     my $sql = $self->pre_process_sql($self->{template});
-    $self->{tt}->process(\$sql, $vars, \$output)
-      or die($self->{tt}->error(), "\n");
+    $output = $self->_process_template(\$sql, $vars);
 
     # this is fairly naive, but for SQL would usually be fine
     $output =~ s/\n\s*\n+/\n/g
@@ -292,7 +306,7 @@ DBIx::RoboQuery - Very configurable/programmable query object
 
 =head1 VERSION
 
-version 0.021
+version 0.030
 
 =head1 SYNOPSIS
 
@@ -464,6 +478,20 @@ L<< Template->new()|Template >>
 You can use this to overwrite the default options, but be sure to use the
 C<variables> options rather than including C<VARIABLES> in this hash
 unless you don't want the default variables to be available to the template.
+
+=item *
+
+C<template_private_vars>
+
+B<Not normally needed>
+
+This is a regexp (which defaults to C<$Template::Stash::PRIVATE>
+(which defaults to C<qr/^[_.]/>)).
+Any template variables that match will not be accessible in the template
+(but will return undef, which will throw an error under C<STRICT> mode).
+If you want to access "private" variables (including "private" hash keys)
+in your templates (the main query template or any templates passed to L</prefer>)
+you should set this to C<undef> to tell L<Template> not to check variable names.
 
 =item *
 

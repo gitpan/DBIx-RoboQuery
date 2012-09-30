@@ -12,9 +12,9 @@ use warnings;
 
 package DBIx::RoboQuery;
 {
-  $DBIx::RoboQuery::VERSION = '0.030';
+  $DBIx::RoboQuery::VERSION = '0.031';
 }
-# git description: v0.021-3-g02c516d
+# git description: v0.030-1-gdae7db4
 
 BEGIN {
   $DBIx::RoboQuery::AUTHORITY = 'cpan:RWSTAUNER';
@@ -40,7 +40,6 @@ sub new {
     key_columns => [],
     resultset_class => "${class}::ResultSet",
     variables => {},
-    template_private_vars => $Template::Stash::PRIVATE,
   };
 
   bless $self, $class;
@@ -213,7 +212,8 @@ sub _process_template {
   my $output = '';
 
   # this is a regexp for vars that are considered private (will appear undef in template)
-  local $Template::Stash::PRIVATE = $self->{template_private_vars};
+  local $Template::Stash::PRIVATE = $self->{template_private_vars}
+    if exists $self->{template_private_vars};
 
   $self->{tt}->process($template, $vars, \$output)
     or die($self->{tt}->error(), "\n");
@@ -306,7 +306,7 @@ DBIx::RoboQuery - Very configurable/programmable query object
 
 =head1 VERSION
 
-version 0.030
+version 0.031
 
 =head1 SYNOPSIS
 

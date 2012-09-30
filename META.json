@@ -4,7 +4,7 @@
       "Randy Stauner <rwstauner@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300023, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Dist::Zilla version 4.300024, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -65,15 +65,15 @@
    "provides" : {
       "DBIx::RoboQuery" : {
          "file" : "lib/DBIx/RoboQuery.pm",
-         "version" : "0.030"
+         "version" : "0.031"
       },
       "DBIx::RoboQuery::ResultSet" : {
          "file" : "lib/DBIx/RoboQuery/ResultSet.pm",
-         "version" : "0.030"
+         "version" : "0.031"
       },
       "DBIx::RoboQuery::Util" : {
          "file" : "lib/DBIx/RoboQuery/Util.pm",
-         "version" : "0.030"
+         "version" : "0.031"
       }
    },
    "release_status" : "stable",
@@ -89,8 +89,11 @@
          "web" : "https://github.com/rwstauner/DBIx-RoboQuery"
       }
    },
-   "version" : "0.030",
+   "version" : "0.031",
    "x_Dist_Zilla" : {
+      "perl" : {
+         "version" : "5.014002"
+      },
       "plugins" : [
          {
             "class" : "Dist::Zilla::Plugin::Git::NextVersion",
@@ -100,37 +103,37 @@
          {
             "class" : "Dist::Zilla::Plugin::GenerateFile",
             "name" : "@Author::RWSTAUNER/GenerateManifestSkip",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::GatherDir",
             "name" : "@Author::RWSTAUNER/GatherDir",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::PruneCruft",
             "name" : "@Author::RWSTAUNER/PruneCruft",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::ManifestSkip",
             "name" : "@Author::RWSTAUNER/ManifestSkip",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::PruneFiles",
             "name" : "@Author::RWSTAUNER/PruneDevelCoverDatabase",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::PruneFiles",
             "name" : "@Author::RWSTAUNER/PruneCodeStatCollection",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::PruneFiles",
             "name" : "@Author::RWSTAUNER/PruneTags",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::Authority",
@@ -140,7 +143,7 @@
          {
             "class" : "Dist::Zilla::Plugin::NextRelease",
             "name" : "@Author::RWSTAUNER/NextRelease",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::Git::Describe",
@@ -150,7 +153,7 @@
          {
             "class" : "Dist::Zilla::Plugin::PkgVersion",
             "name" : "@Author::RWSTAUNER/PkgVersion",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::Prepender",
@@ -165,12 +168,12 @@
          {
             "class" : "Dist::Zilla::Plugin::License",
             "name" : "@Author::RWSTAUNER/License",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::Readme",
             "name" : "@Author::RWSTAUNER/Readme",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::ReadmeAnyFromPod",
@@ -195,12 +198,12 @@
          {
             "class" : "Dist::Zilla::Plugin::AutoPrereqs",
             "name" : "@Author::RWSTAUNER/AutoPrereqs",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::MetaNoIndex",
             "name" : "@Author::RWSTAUNER/MetaNoIndex",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::MetaProvides::Package",
@@ -215,32 +218,32 @@
          {
             "class" : "Dist::Zilla::Plugin::MetaConfig",
             "name" : "@Author::RWSTAUNER/MetaConfig",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::MetaYAML",
             "name" : "@Author::RWSTAUNER/MetaYAML",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::MetaJSON",
             "name" : "@Author::RWSTAUNER/MetaJSON",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::ExecDir",
             "name" : "@Author::RWSTAUNER/ExecDir",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::ShareDir",
             "name" : "@Author::RWSTAUNER/ShareDir",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::MakeMaker",
             "name" : "@Author::RWSTAUNER/MakeMaker",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::Test::ReportPrereqs",
@@ -275,7 +278,7 @@
          {
             "class" : "Dist::Zilla::Plugin::PodCoverageTests",
             "name" : "@Author::RWSTAUNER/@TestingMania/PodCoverageTests",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::Test::Perl::Critic",
@@ -300,7 +303,7 @@
          {
             "class" : "Dist::Zilla::Plugin::MetaTests",
             "name" : "@Author::RWSTAUNER/@TestingMania/MetaTests",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::Test::Compile",
@@ -335,7 +338,7 @@
          {
             "class" : "Dist::Zilla::Plugin::PodSyntaxTests",
             "name" : "@Author::RWSTAUNER/@TestingMania/PodSyntaxTests",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::MojibakeTests",
@@ -345,7 +348,7 @@
          {
             "class" : "Dist::Zilla::Plugin::Manifest",
             "name" : "@Author::RWSTAUNER/Manifest",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::CheckExtraTests",
@@ -365,7 +368,7 @@
          {
             "class" : "Dist::Zilla::Plugin::TestRelease",
             "name" : "@Author::RWSTAUNER/TestRelease",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::Git::Check",
@@ -390,12 +393,12 @@
          {
             "class" : "Dist::Zilla::Plugin::ConfirmRelease",
             "name" : "@Author::RWSTAUNER/ConfirmRelease",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::UploadToCPAN",
             "name" : "@Author::RWSTAUNER/UploadToCPAN",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::InstallRelease",
@@ -411,37 +414,37 @@
                }
             },
             "name" : "TestSuggests",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::FinderCode",
             "name" : ":InstallModules",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::FinderCode",
             "name" : ":IncModules",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::FinderCode",
             "name" : ":TestFiles",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::FinderCode",
             "name" : ":ExecFiles",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::FinderCode",
             "name" : ":ShareFiles",
-            "version" : "4.300023"
+            "version" : "4.300024"
          },
          {
             "class" : "Dist::Zilla::Plugin::FinderCode",
             "name" : ":MainModule",
-            "version" : "4.300023"
+            "version" : "4.300024"
          }
       ],
       "zilla" : {
@@ -449,7 +452,7 @@
          "config" : {
             "is_trial" : "0"
          },
-         "version" : "4.300023"
+         "version" : "4.300024"
       }
    },
    "x_authority" : "cpan:RWSTAUNER"

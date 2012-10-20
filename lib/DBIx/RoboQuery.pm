@@ -12,9 +12,9 @@ use warnings;
 
 package DBIx::RoboQuery;
 {
-  $DBIx::RoboQuery::VERSION = '0.031';
+  $DBIx::RoboQuery::VERSION = '0.032';
 }
-# git description: v0.030-1-gdae7db4
+# git description: v0.031-6-gaa2e204
 
 BEGIN {
   $DBIx::RoboQuery::AUTHORITY = 'cpan:RWSTAUNER';
@@ -25,6 +25,9 @@ use Carp qw(carp croak);
 use DBIx::RoboQuery::ResultSet ();
 use DBIx::RoboQuery::Util ();
 use Template 2.22; # Template Toolkit
+
+# no warnings 'once';
+my $_template_stash_private = $Template::Stash::PRIVATE;
 
 
 sub new {
@@ -40,6 +43,7 @@ sub new {
     key_columns => [],
     resultset_class => "${class}::ResultSet",
     variables => {},
+    template_tr_name => 'template',
   };
 
   bless $self, $class;
@@ -169,6 +173,7 @@ sub _pass_through_args {
     template_options
     transformations
     template_private_vars
+    template_tr_name
     variables
   ));
 }
@@ -183,12 +188,25 @@ sub prepare_transformations {
   # assume a simple hash is a hash of named subs
   if( ref $tr eq 'HASH' ){
     require Sub::Chain::Group;
+
+    # the name of the template func can be changed (or disabled)
+    if( my $tr_name = $self->{template_tr_name} ){
+      # add the template callback to the subs (with $self embedded)
+      $tr = {
+        %$tr,
+        $tr_name => $self->template_tr_callback,
+      }
+        if ! exists $tr->{ $tr_name };
+    }
+
     $self->{transformations} =
       Sub::Chain::Group->new(
         chain_class => 'Sub::Chain::Named',
         chain_args  => {subs => $tr},
+        hook_as_hash => 1,
       );
   }
+
   # return nothing
   return;
 }
@@ -284,9 +302,23 @@ sub tr_groups {
   return $self->transform($name, groups => $groups, args => [@args]);
 }
 
-# TODO: tr_row?  could do it named func style,
-# but a template of '[% row.fld1 = 0 %]' seems more useful
-# (updating the hash should work, but if not this would: '[% _save_row(row) %]')
+
+sub tr_row {
+  my ($self, $name, $hooks, @args) = @_;
+  return $self->transform($name, hooks => $hooks, args => [@args]);
+}
+
+
+sub template_tr_callback {
+  my ($self) = @_;
+  return sub {
+    my ($row, $template) = @_;
+    # (updating the hash should work, but if not this would: '[% _save_row(row) %]')
+    $template = '[% ' . $template . ' %]';
+    $self->_process_template(\$template, {row => $row});
+    return $row;
+  };
+}
 
 1;
 
@@ -306,7 +338,7 @@ DBIx::RoboQuery - Very configurable/programmable query object
 
 =head1 VERSION
 
-version 0.031
+version 0.032
 
 =head1 SYNOPSIS
 
@@ -382,7 +414,16 @@ to interpolate and/or generate the SQL
 
 =item *
 
-The output can be transformed (using L<Sub::Chain::Group>)
+The output can be transformed (using L<Sub::Chain::Group>).
+You can specify multiple transformations per field
+and you can specify transformations that operate on the whole row.
+This way you can set the value of one field based on the value of another.
+
+See L</transform> (and the C<tr_*> shortcuts),
+L</template_tr_callback>,
+C<template_tr_name> (in L</new>)
+and L<Sub::Chain::Group/HOOKS>
+for more information.
 
 =item *
 
@@ -492,6 +533,16 @@ Any template variables that match will not be accessible in the template
 If you want to access "private" variables (including "private" hash keys)
 in your templates (the main query template or any templates passed to L</prefer>)
 you should set this to C<undef> to tell L<Template> not to check variable names.
+
+=item *
+
+C<template_tr_name>
+
+If you pass a hashref for C<transformations> the module will install
+a sub that allows you to modify a row using the template syntax.
+By default it is named C<template>,
+but you may use this attribute to specify and alternate name
+(or use C<undef> to disable the addition of this transformation sub).
 
 =item *
 
@@ -673,6 +724,12 @@ this method will do nothing.
 It is mostly here to help a subclass use a different module
 for transformations if desired.
 
+Additionally, if you pass in a hash ref
+it will add a sub to the transformations hash named C<template>
+(or the value you pass as C<template_tr_name> to the constructor)
+if a sub by that name doesn't already exist.
+It uses L</template_tr_callback> to create the code ref.
+
 =head2 pre_process_sql
 
 Prepend C<prefix> and append C<suffix>.
@@ -783,6 +840,32 @@ or an array ref.
 
 Just like L</tr_fields> but the second parameter is for groups.
 
+=head2 tr_row
+
+  $query->tr_row("func", "before", @args);
+
+This is a shortcut for calling L</transform> with a
+"before" or "after" hook that operates on the whole row:
+
+  $query->transform("func", hook => "before", @args);
+
+=head2 template_tr_callback
+
+This returns a code ref that can be included in the C<transformations> hash.
+This is used internally by L</prepare_transformations>
+but is available separately in case you need to add it manually
+(if you're passing a C<transformations> object to the constructor
+rather than a hash ref).
+
+The sub returned by this method accepts a hashref
+and a template string (without the C<[% %]>),
+processes the template string (passing the hashref as a var named "row"),
+and returns the hash ref (in case it was modified by the template):
+
+  my $cb = $query->template_tr_callback;
+  $cb->({foo => 'bar'}, q[ row.baz = "qux" ]);
+  # returns { foo => 'bar', baz => 'qux' };
+
 =for Pod::Coverage result results
 
 =for test_synopsis my $dbh; # NOTE: This SYNOPSIS is read in and tested in t/synopsis.t
@@ -832,10 +915,6 @@ Write a lot more tests
 =item *
 
 Allow binding an arrayref and returning '?,?,?'
-
-=item *
-
-Accept transformations or callbacks that operate on the whole row?
 
 =item *
 

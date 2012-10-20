@@ -23,11 +23,15 @@ my @modules = qw(
   File::Spec::Functions
   File::Temp
   List::Util
+  Pod::Coverage::TrustPod
   Sub::Chain::Group
   Template
+  Test::CPAN::Meta
   Test::Exception
   Test::MockObject
   Test::More
+  Test::Pod
+  Test::Pod::Coverage
   Timer::Simple
   perl
   strict

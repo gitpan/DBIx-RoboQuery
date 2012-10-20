@@ -29,13 +29,13 @@ my %WriteMakefileArgs = (
   "NAME" => "DBIx::RoboQuery",
   "PREREQ_PM" => {
     "Carp" => 0,
-    "Sub::Chain::Group" => 0,
+    "Sub::Chain::Group" => "0.013",
     "Template" => "2.22",
     "Timer::Simple" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.031",
+  "VERSION" => "0.032",
   "test" => {
     "TESTS" => "t/*.t"
   }

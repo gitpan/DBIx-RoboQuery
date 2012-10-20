@@ -12,7 +12,7 @@ use warnings;
 
 package DBIx::RoboQuery::ResultSet;
 {
-  $DBIx::RoboQuery::ResultSet::VERSION = '0.031';
+  $DBIx::RoboQuery::ResultSet::VERSION = '0.032';
 }
 BEGIN {
   $DBIx::RoboQuery::ResultSet::AUTHORITY = 'cpan:RWSTAUNER';
@@ -90,11 +90,12 @@ sub array {
     }
   }
 
+  my $tr = $self->{transformations};
   my $t = Timer::Simple->new;
 
   my $rows = $self->{sth}->fetchall_arrayref(@args);
-  $rows = [map { $self->{transformations}->call(@tr_args, $_) } @$rows]
-    if $self->{transformations};
+  $rows = [map { $tr->call(@tr_args, $_) } @$rows]
+    if $tr;
 
   # include transformations in the time for consistency with hash()
   $self->{times}{fetch} = $t->stop;
@@ -217,10 +218,6 @@ sub hash {
   # again with an alias and then drop it.
 
   my $tr = $self->{transformations};
-  my $fetchrow = $tr
-    # don't attempt to transform if the fetch returned undef
-    ? sub { my $r = $sth->fetchrow_hashref(); $r && $tr->call($r); }
-    : sub {         $sth->fetchrow_hashref(); };
 
   # we only increase the row count for new (not overridden) hashes
   my $count = 0;
@@ -229,7 +226,8 @@ sub hash {
   # check for preferences once... if there are none, do the quick version
   if( !$self->{preferences} || !@{$self->{preferences}} ){
     # we can't honor drop_columns with fetchall_hashref(), so fake it
-    while( my $row = $fetchrow->() ){
+    while( my $row = $sth->fetchrow_hashref() ){
+      $row = $tr->call($row) if $tr;
       my $hash = $root;
       $hash = ($hash->{ $row->{$_} } ||= {}) for @key_columns;
       ++$count unless keys %$hash;
@@ -237,7 +235,8 @@ sub hash {
     }
   }
   else {
-    while( my $row = $fetchrow->() ){
+    while( my $row = $sth->fetchrow_hashref() ){
+      $row = $tr->call($row) if $tr;
       my ($hash, $drop) = ($root, $dropped);
       # traverse hash tree to get to {key1 => {key2 => {record}}}
       foreach ( @key_columns ){
@@ -350,7 +349,7 @@ DBIx::RoboQuery::ResultSet - Configure the results to get what you want
 
 =head1 VERSION
 
-version 0.031
+version 0.032
 
 =head1 SYNOPSIS
 

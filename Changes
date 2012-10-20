@@ -1,5 +1,10 @@
 Revision history for DBIx::RoboQuery
 
+0.032     2012-10-20T22:47:27Z
+
+  - Add row-level transformations and a 'tr_row' shortcut method.
+  - Minor optimizations to row fetching
+
 0.031     2012-09-30T04:24:21Z
 
   - Don't pre-cache $Template::Stash::PRIVATE at instantiation;
